@@ -22,7 +22,7 @@ python demo/pcd_seg_demo.py \
 # semantickitti数据集生成命令
 python ./tools/create_data.py semantickitti --root-path ./data/semantickitti --out-dir ./data/semantickitti --extra-tag semantickitti
 # 仿照semantickitti的kitti_instance数据集生成命令
-python ./tools/create_data.py semantickitti --root-path ./data/kitti_instance_seg --out-dir ./data/kitti_instance_seg --extra-tag kitti_instance_seg
+python ./tools/create_data_mine.py kittiinstance --root-path ./data/kitti_instance_seg --out-dir ./data/kitti_instance_seg --extra-tag kittiinstance
 
 # 在semantickitti上评估MinkUNet
 bash tools/dist_test.sh configs/minkunet/minkunet_w32_8xb2-15e_semantickitti.py checkpoints/minkunet_w32_8xb2-15e_semantickitti_20230309_160710-7fa0a6f1.pth 8
