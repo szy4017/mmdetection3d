@@ -1,0 +1,32 @@
+# 验证安装的demo运行命令
+python demo/pcd_demo.py demo/data/kitti/000008.bin \
+    configs/pointpillars/pointpillars_hv_secfpn_8xb6-160e_kitti-3d-car.py \
+    checkpoints/hv_pointpillars_secfpn_6x8_160e_kitti-3d-car_20220331_134606-d42d15ed.pth --show
+
+# 点云分割的可视化demo，必须要cuda，cpu上无法可视化
+python demo/pcd_seg_demo.py demo/data/scannet/scene0000_00.bin \
+    configs/pointnet2/pointnet2_ssg_2xb16-cosine-50e_s3dis-seg.py \
+    checkpoints/pointnet2_ssg_xyz-only_16x2_cosine_200e_scannet_seg-3d-20class_20210514_143628-4e341a48.pth --show
+
+# point++在s3dis上的test
+python tools/test.py configs/pointnet2/pointnet2_ssg_2xb16-cosine-50e_s3dis-seg.py \
+    checkpoints/pointnet2_ssg_16x2_cosine_50e_s3dis_seg-3d-13class_20210514_144205-995d0119.pth \
+    --task lidar_seg
+
+# minkunet demo
+python demo/pcd_seg_demo.py \
+    points/000000_point_feature.npy \
+    configs/minkunet/minkunet34v2_w32_torchsparse_8xb2-amp-laser-polar-mix-3x_semantickitti.py \
+    checkpoints/minkunet34v2_w32_torchsparse_8xb2-amp-laser-polar-mix-3x_semantickitti_20230510_221853-b14a68b3.pth \
+
+# semantickitti数据集生成命令
+python ./tools/create_data.py semantickitti --root-path ./data/semantickitti --out-dir ./data/semantickitti --extra-tag semantickitti
+# 仿照semantickitti的kitti_instance数据集生成命令
+python ./tools/create_data.py semantickitti --root-path ./data/kitti_instance_seg --out-dir ./data/kitti_instance_seg --extra-tag kitti_instance_seg
+
+# 在semantickitti上评估MinkUNet
+bash tools/dist_test.sh configs/minkunet/minkunet_w32_8xb2-15e_semantickitti.py checkpoints/minkunet_w32_8xb2-15e_semantickitti_20230309_160710-7fa0a6f1.pth 8
+bash tools/dist_test.sh configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth 4
+python tools/test.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth --task lidar_seg
+# 在kitti_instance_seg上评估MinkUNet
+python tools/test.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth --task lidar_seg

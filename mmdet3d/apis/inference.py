@@ -366,7 +366,7 @@ def inference_mono_3d_detector(model: nn.Module,
         return results
 
 
-def inference_segmentor(model: nn.Module, pcds: PointsType):
+def inference_segmentor(model: nn.Module, pcds: PointsType, masks, label_mapping):
     """Inference point cloud with the segmentor.
 
     Args:
@@ -385,6 +385,12 @@ def inference_segmentor(model: nn.Module, pcds: PointsType):
         pcds = [pcds]
         is_batch = False
 
+    if isinstance(masks, (list, tuple)):
+        is_batch = True
+    else:
+        masks = [masks]
+        is_batch = False
+
     cfg = model.cfg
 
     # build the data pipeline
@@ -398,8 +404,10 @@ def inference_segmentor(model: nn.Module, pcds: PointsType):
 
     data = []
     # TODO: support load points array
-    for pcd in pcds:
+    for pcd, mask in zip(pcds, masks):
         data_ = dict(lidar_points=dict(lidar_path=pcd))
+        data_['pts_semantic_mask'] = mask
+        data_['seg_label_mapping'] = label_mapping
         data_ = test_pipeline(data_)
         data.append(data_)
 
