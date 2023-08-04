@@ -37,7 +37,9 @@ def parse_args():
     # args.mask = '../points/000000.label'
     args.label_mapping = np.load('../points/label_mapping.npy')
     args.config = '../configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py'
-    args.checkpoint = '../checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth'
+    args.checkpoint = '../checkpoints/munkunet_kittiinstance_20230715_1829.pth'
+    # args.checkpoint = '../checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth'
+
     return args
 
 
@@ -57,8 +59,8 @@ def main(args):
     pred_mask = result.pred_pts_seg.pts_semantic_mask.cpu().numpy()
     # save the results
     print('save result')
-    # np.save('../points/point.npy', point)
-    # np.save('../points/gt_mask.npy', gt_mask)
+    np.save('../points/point.npy', point)
+    np.save('../points/gt_mask.npy', gt_mask)
     np.save('../points/pred_mask.npy', pred_mask)
     print('finished!')
 

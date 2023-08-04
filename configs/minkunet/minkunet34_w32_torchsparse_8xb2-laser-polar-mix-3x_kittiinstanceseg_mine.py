@@ -4,7 +4,10 @@ _base_ = [
 ]
 
 model = dict(
-    data_preprocessor=dict(max_voxels=None),
+    data_preprocessor=dict(max_voxels=None,
+                           voxel_layer=dict(
+                               voxel_size=[0.1, 0.1, 0.1])
+                           ),
     backbone=dict(encoder_blocks=[2, 3, 4, 6]))
 
 train_pipeline = [
@@ -16,7 +19,7 @@ train_pipeline = [
         with_seg_3d=True,
         seg_3d_dtype='np.int32',
         seg_offset=2**16,
-        dataset_type='semantickitti'),
+        dataset_type='kittiinstance'),
     dict(type='PointSegClassMapping'),
     dict(
         type='RandomChoice',
@@ -39,7 +42,7 @@ train_pipeline = [
                             with_seg_3d=True,
                             seg_3d_dtype='np.int32',
                             seg_offset=2**16,
-                            dataset_type='semantickitti'),
+                            dataset_type='kittiinstance'),
                         dict(type='PointSegClassMapping')
                     ],
                     prob=1)
@@ -63,7 +66,7 @@ train_pipeline = [
                             with_seg_3d=True,
                             seg_3d_dtype='np.int32',
                             seg_offset=2**16,
-                            dataset_type='semantickitti'),
+                            dataset_type='kittiinstance'),
                         dict(type='PointSegClassMapping')
                     ],
                     prob=1)

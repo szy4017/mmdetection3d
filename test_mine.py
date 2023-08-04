@@ -66,7 +66,9 @@ def parse_args():
         os.environ['LOCAL_RANK'] = str(args.local_rank)
 
     args.config = 'configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py'
-    args.checkpoint = 'checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth'
+    # args.checkpoint = 'checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth'
+    args.checkpoint = 'checkpoints/munkunet_kittiinstance_20230715_1829.pth'
+    # args.checkpoint = 'checkpoints/epoch_1.pth'
     args.task = 'lidar_seg'
     return args
 

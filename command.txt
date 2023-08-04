@@ -21,7 +21,7 @@ python demo/pcd_seg_demo.py \
 
 # semantickitti数据集生成命令
 python ./tools/create_data.py semantickitti --root-path ./data/semantickitti --out-dir ./data/semantickitti --extra-tag semantickitti
-# 仿照semantickitti的kitti_instance数据集生成命令
+# kitti_instance数据集生成命令
 python ./tools/create_data_mine.py kittiinstance --root-path ./data/kitti_instance_seg --out-dir ./data/kitti_instance_seg --extra-tag kittiinstance
 
 # 在semantickitti上评估MinkUNet
@@ -30,3 +30,7 @@ bash tools/dist_test.sh configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-
 python tools/test.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth --task lidar_seg
 # 在kitti_instance_seg上评估MinkUNet
 python tools/test.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth --task lidar_seg
+python tools/test.py work_dirs/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine/20230715_155322/vis_data/config.py work_dirs/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine/last_checkpoint --task lidar_seg
+
+# 在kittiinstance上微调MinkUNet，直接训练
+python tools/train.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py
