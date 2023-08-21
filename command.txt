@@ -29,8 +29,10 @@ bash tools/dist_test.sh configs/minkunet/minkunet_w32_8xb2-15e_semantickitti.py 
 bash tools/dist_test.sh configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth 4
 python tools/test.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth --task lidar_seg
 # 在kitti_instance_seg上评估MinkUNet
-python tools/test.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth --task lidar_seg
-python tools/test.py work_dirs/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine/20230715_155322/vis_data/config.py work_dirs/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine/last_checkpoint --task lidar_seg
+python tools/test.py work_dirs/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py checkpoints/munkunet_kittiinstance_20230715_1829.pth --task lidar_seg
 
 # 在kittiinstance上微调MinkUNet，直接训练
 python tools/train.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py
+
+# waymo数据集生成命令
+python tools/create_data.py waymo --root-path ./data/waymo/ --out-dir ./data/waymo/ --workers 128 --extra-tag waymo
