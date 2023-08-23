@@ -34,5 +34,11 @@ python tools/test.py work_dirs/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kit
 # 在kittiinstance上微调MinkUNet，直接训练
 python tools/train.py configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py
 
-# waymo数据集生成命令
+# waymo数据集转换命令
 python tools/create_data.py waymo --root-path ./data/waymo/ --out-dir ./data/waymo/ --workers 128 --extra-tag waymo
+
+# waymo_mine数据集生成命令
+python tools/create_data_mine.py waymomine --root-path ./data/waymo_mine --out-dir ./data/waymo_mine --extra-tag waymo_mine
+
+# 在waymo_mine数据集上评估SECOND
+python tools/test.py configs/second/second_hv_secfpn_8xb6-80e_waymomine-3d-3class_mine.py checkpoints/hv_second_secfpn_fp16_6x8_80e_kitti-3d-3class_20200925_110059-05f67bdf.pth

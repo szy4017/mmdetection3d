@@ -22,7 +22,7 @@ def load_data(point_path, gt_mask_path, pred_mask_path):
     return point[:, :3], gt_mask, pred_mask
 
 
-def draw_scene(point, mask):
+def draw_scene(point, mask=None):
     """
     根据mask绘制点云场景
     Args:
@@ -47,20 +47,24 @@ def draw_scene(point, mask):
                  [0, 0.5, 0.5], [0.5, 0, 0.5], [0.75, 0.25, 0], [0.75, 0, 0.25],
                  [0, 0.75, 0.25], [0.25, 0.75, 0], [0.25, 0, 0.75], [0, 0.25, 0.75],
                  [0.5, 0.25, 0.25]]
-    for i, category in enumerate(np.unique(mask)):
-        colors[mask == category] = color_map[i]  # 根据类别设置颜色
-
-    point_cloud.colors = o3d.utility.Vector3dVector(colors)
+    if mask is not None:
+        for i, category in enumerate(np.unique(mask)):
+            colors[mask == category] = color_map[i]  # 根据类别设置颜色
+        point_cloud.colors = o3d.utility.Vector3dVector(colors)
 
     # 可视化点云
     o3d.visualization.draw_geometries([point_cloud])
 
 
 if __name__ == '__main__':
-    point_path = '../points/point.npy'
-    gt_mask_path = '../points/gt_mask.npy'
-    pred_mask_path = '../points/pred_mask.npy'
+    # point_path = '../points/point.npy'
+    # gt_mask_path = '../points/gt_mask.npy'
+    # pred_mask_path = '../points/pred_mask.npy'
+    #
+    # point, gt_mask, pred_mask = load_data(point_path, gt_mask_path, pred_mask_path)
+    # # draw_scene(point, gt_mask)  # 绘制gt场景
+    # draw_scene(point, pred_mask)    # 绘制pred场景
 
-    point, gt_mask, pred_mask = load_data(point_path, gt_mask_path, pred_mask_path)
-    # draw_scene(point, gt_mask)  # 绘制gt场景
-    draw_scene(point, pred_mask)    # 绘制pred场景
+    point_path = '../points/waymo_point.bin'
+    point = np.fromfile(point_path, dtype=np.float32).reshape([-1, 6])
+    draw_scene(point[:, :3])

@@ -3,10 +3,13 @@ import argparse
 from os import path as osp
 
 from tools.dataset_converters import kittiinstance_converter_mine
+from tools.dataset_converters import waymomine_converter_mine as waymomine
+from tools.dataset_converters.update_infos_to_v2 import update_pkl_infos
+from tools.dataset_converters.create_gt_database import create_groundtruth_database
 
 
 def kittiinstance_data_prep(info_prefix, out_dir):
-    """Prepare the info file for SemanticKITTI dataset.
+    """Prepare the info file for KITTIInstance dataset.
 
     Args:
         info_prefix (str): The prefix of info filenames.
@@ -14,6 +17,46 @@ def kittiinstance_data_prep(info_prefix, out_dir):
     """
     kittiinstance_converter_mine.create_kittiinstance_info_file(
         info_prefix, out_dir)
+
+
+def waymomine_data_prep(root_path,
+                        info_prefix,
+                        version,
+                        out_dir,
+                        with_plane=False):
+    """Prepare data related to waymo_mine dataset.
+
+    Related data consists of '.pkl' files recording basic infos,
+    2D annotations and groundtruth database.
+
+    Args:
+        root_path (str): Path of dataset root.
+        info_prefix (str): The prefix of info filenames.
+        version (str): Dataset version.
+        out_dir (str): Output directory of the groundtruth database info.
+        with_plane (bool, optional): Whether to use plane information.
+            Default: False.
+    """
+    waymomine.create_kitti_info_file(root_path, info_prefix, with_plane)
+    waymomine.create_reduced_point_cloud(root_path, info_prefix)
+
+    info_train_path = osp.join(out_dir, f'{info_prefix}_infos_train.pkl')
+    info_val_path = osp.join(out_dir, f'{info_prefix}_infos_val.pkl')
+    info_trainval_path = osp.join(out_dir, f'{info_prefix}_infos_trainval.pkl')
+    info_test_path = osp.join(out_dir, f'{info_prefix}_infos_test.pkl')
+    update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_train_path)
+    update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_val_path)
+    update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_trainval_path)
+    update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_test_path)
+    create_groundtruth_database(
+        'KittiDataset',
+        root_path,
+        info_prefix,
+        f'{info_prefix}_infos_train.pkl',
+        relative_path=False,
+        mask_anno_path='instances_train.json',
+        with_mask=(version == 'mask'))
+
 
 
 parser = argparse.ArgumentParser(description='Data converter arg parser')
@@ -61,5 +104,12 @@ if __name__ == '__main__':
     if args.dataset == 'kittiinstance':
         kittiinstance_data_prep(
             info_prefix=args.extra_tag, out_dir=args.out_dir)
+    elif args.dataset == 'waymomine':
+        waymomine_data_prep(
+            root_path=args.root_path,
+            info_prefix=args.extra_tag,
+            version=args.version,
+            out_dir=args.out_dir,
+            with_plane=args.with_plane)
     else:
         raise NotImplementedError(f'Don\'t support {args.dataset} dataset.')

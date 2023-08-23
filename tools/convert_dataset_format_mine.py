@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import random
 
 
 def convert_point_file(source_path, target_path):
@@ -110,12 +111,100 @@ def convert_label_file(source_path, target_path):
         # elif '/09/' in file_save_path_list[i]:
         #     return val_list, path_list
 
-if __name__ == '__main__':
-    source_path = '/data/szy4017/data/kitti_instance/kitti_instance/training'
-    target_path = '/data/szy4017/data/kitti_instance_2'
 
-    convert_point_file(source_path, target_path)
-    convert_label_file(source_path, target_path)
+def waymo_mine(root):
+    calib_path = os.path.join(root, 'calib')
+    image_path = os.path.join(root, 'image_2')
+    label_path = os.path.join(root, 'label_2')
+    velodyne_path = os.path.join(root, 'velodyne')
+
+    calib_list = os.listdir(calib_path)
+    image_list = os.listdir(image_path)
+    label_list = os.listdir(label_path)
+    velodyne_list = os.listdir(velodyne_path)
+    calib_list.sort()
+    image_list.sort()
+    label_list.sort()
+    velodyne_list.sort()
+
+    calib_name_list = []
+    image_name_list = []
+    label_name_list = []
+    velodyne_name_list = []
+    for ca in calib_list:
+        calib_name_list.append(ca.split('.')[0])
+    for im in image_list:
+        image_name_list.append(im.split('.')[0])
+    for la in label_list:
+        label_name_list.append(la.split('.')[0])
+    for ve in velodyne_list:
+        velodyne_name_list.append(ve.split('.')[0])
+
+    common_name_list = list(set(calib_name_list) & set(image_name_list) & set(label_name_list) & set(velodyne_name_list))
+    remain_calib_name_list = [x for x in calib_name_list if x not in common_name_list]
+    remain_image_name_list = [x for x in image_name_list if x not in common_name_list]
+    remain_label_name_list = [x for x in label_name_list if x not in common_name_list]
+    remain_velodyne_name_list = [x for x in velodyne_name_list if x not in common_name_list]
+
+    if remain_calib_name_list is not []:
+        for re_ca in remain_calib_name_list:
+            try:
+                os.remove(os.path.join(root, 'calib', re_ca+'.txt'))
+                print(f"remove {re_ca}+.txt in calib")
+            except FileNotFoundError:
+                print(f"{re_ca}+.txt in calib not found")
+    if remain_image_name_list is not []:
+        for re_im in remain_image_name_list:
+            try:
+                os.remove(os.path.join(root, 'image_2', re_im+'.jpg'))
+                print(f"remove {re_im}+.jpg in image_2")
+            except FileNotFoundError:
+                print(f"{re_im}+.jpg in image_2 not found")
+    if remain_label_name_list is not []:
+        for re_la in remain_label_name_list:
+            try:
+                os.remove(os.path.join(root, 'label_2', re_la+'.txt'))
+                print(f"remove {re_la}+.txt in label_2")
+            except FileNotFoundError:
+                print(f"{re_la}+.txt in label_2 not found")
+    if remain_velodyne_name_list is not []:
+        for re_ve in remain_velodyne_name_list:
+            try:
+                os.remove(os.path.join(root, 'velodyne', re_ve+'.bin'))
+                print(f"remove {re_ve}+.bin in velodyne")
+            except FileNotFoundError:
+                print(f"{re_ve}+.bin in velodyne not found")
+
+
+def create_ImageSets_waymo_mine(root):
+    file_list = os.listdir(os.path.join(root, 'calib'))
+    name_list = []
+    for f in file_list:
+        name_list.append(f.split('.')[0])
+
+    val_set = random.sample(name_list, 3827)
+    train_set = [x for x in name_list if x not in val_set]
+    val_set.sort()
+    train_set.sort()
+
+    with open(os.path.join(root, 'val.txt'), 'w') as file:
+        for item in val_set:
+            file.write("%s\n" % item)
+        print('val set 创建成功')
+    with open(os.path.join(root, 'train.txt'), 'w') as file:
+        for item in train_set:
+            file.write("%s\n" % item)
+        print('train set 创建成功')
+
+    pass
+
+
+if __name__ == '__main__':
+    # source_path = '/data/szy4017/data/kitti_instance/kitti_instance/training'
+    # target_path = '/data/szy4017/data/kitti_instance_2'
+    #
+    # convert_point_file(source_path, target_path)
+    # convert_label_file(source_path, target_path)
 
     # point_val_list, point_path_list = convert_point_file(source_path, target_path)
     # label_val_list, label_path_list = convert_label_file(source_path, target_path)
@@ -126,3 +215,6 @@ if __name__ == '__main__':
     #         print('point too small')
     #         print(pp, ' ', lp)
 
+
+    # waymo_mine('/data/szy4017/data/waymo_mine/training')
+    create_ImageSets_waymo_mine('/data/szy4017/data/waymo_mine/training')
