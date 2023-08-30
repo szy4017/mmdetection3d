@@ -42,3 +42,12 @@ python tools/create_data_mine.py waymomine --root-path ./data/waymo_mine --out-d
 
 # 在waymo_mine数据集上评估SECOND
 python tools/test.py configs/second/second_hv_secfpn_8xb6-80e_waymomine-3d-3class_mine.py checkpoints/hv_second_secfpn_fp16_6x8_80e_kitti-3d-3class_20200925_110059-05f67bdf.pth
+
+# kitti数据集生成命令
+python tools/create_data.py kitti --root-path ./data/kitti --out-dir ./data/kitti --extra-tag kitti
+
+# 在kitti数据集上评估Centerpoint
+python tools/test.py configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py checkpoints/centerpoint_01voxel_second_secfpn_circlenms_4x8_cyclic_20e_nus_20220810_030004-9061688e.pth
+
+# 在kitti数据集上训练Centerpoint
+CUDA_VISIBLE_DEVICES=0,2,3,4 ./tools/dist_train.sh configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py 4

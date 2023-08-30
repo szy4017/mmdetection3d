@@ -184,3 +184,29 @@ bev  AP40:0.0459, 0.0451, 0.0451
 主要评价指标有AP11和AP40，他们的主要区别在于PR曲线采样点的数量不同。
 AP11的采样点为11个，AP40的采样点为40个。
 AP40更能准确反应算法的检测性能，一般情况下AP40的数值要小于AP11。
+
+
+### 对于kitti数据集上进行点云实例表征增强的记录
+我们采用centerpoint模型来检测点云目标的中心点，以中心点特征来标准目标点云的实例属性以实现点云实例表征增强的效果。
+实验分为一下几个步骤：
+1. 在常规kitti数据集中训练centerpoint作为baseline或预训练；
+2. 在构建的实例点云数据集中训练centerpoint并测试，记录性能；
+3. 在点云虚拟增广辅助的实例点云数据中训练centerpoint，并测试，记录性能；
+4. 最终获得经过点云实例表征增强的实例点云数据。
+
+#### 在kitti数据中训练centerpoint
+1. 实现测试的pipeline，由于mmdet中的centerpoint是训练和推理在nuscence上的，load已有的参数是不能得到满意的结果的。
+我们构建了新的model配置和total配置：
+`centerpoint_voxel01_second_secfpn_kitti_mine.py`
+`centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py`
+测试命令为：
+```shell script
+python tools/test.py configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py checkpoints/centerpoint_01voxel_second_secfpn_circlenms_4x8_cyclic_20e_nus_20220810_030004-9061688e.pth
+```
+
+2. 初步在kitti上训练centerpoint，采用4 GPU训练20个epoch
+由于centerpoint在代码上不适配在kitti数据集上进行训练，已经根据资料进行代码修改，并采用新的model配置。
+训练命令为：
+```shell script
+./tools/dist_train.sh configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py 4
+```

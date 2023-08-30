@@ -58,7 +58,8 @@ def parse_args():
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
 
-    args.config = 'configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py'
+    # args.config = 'configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine.py'
+    args.config = 'configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py'
     return args
 
 
