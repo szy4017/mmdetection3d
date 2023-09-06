@@ -47,7 +47,7 @@ def waymomine_data_prep(root_path,
     update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_train_path)
     update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_val_path)
     update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_trainval_path)
-    update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_test_path)
+    # update_pkl_infos('kitti', out_dir=out_dir, pkl_path=info_test_path)
     create_groundtruth_database(
         'KittiDataset',
         root_path,

@@ -36,7 +36,7 @@ def register_spconv2() -> bool:
         MODELS._register_module(SubMConv3d, 'SubMConv3d', force=True)
         MODELS._register_module(SubMConv4d, 'SubMConv4d', force=True)
         SparseModule._version = 2
-        SparseModule._load_from_state_dict = _load_from_state_dict
+        # SparseModule._load_from_state_dict = _load_from_state_dict
         return True
 
 

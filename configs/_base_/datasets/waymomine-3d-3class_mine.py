@@ -2,7 +2,7 @@
 dataset_type = 'KittiDataset'
 data_root = 'data/waymo_mine/'
 class_names = ['Pedestrian', 'Cyclist', 'Car']
-point_cloud_range = [0, -40, -3, 70.4, 40, 1]
+point_cloud_range = [-35.0, -75.0, -2, 75.0, 75.0, 4]
 input_modality = dict(use_lidar=True, use_camera=False)
 metainfo = dict(classes=class_names)
 
@@ -23,7 +23,7 @@ backend_args = None
 
 db_sampler = dict(
     data_root=data_root,
-    info_path=data_root + 'kitti_dbinfos_train.pkl',
+    info_path=data_root + 'waymo_mine_dbinfos_train.pkl',
     rate=1.0,
     prepare=dict(
         filter_by_difficulty=[-1],

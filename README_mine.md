@@ -81,7 +81,8 @@ waymo_mine
 4. schedule配置文件
 
 举例second模型的配置
-1. 总配置文件
+
+(1) 总配置文件
 ```python
 _base_ = [
     '../_base_/models/second_hv_secfpn_kitti.py',
@@ -93,10 +94,21 @@ _base_ = [
 当创建自己的总配置文件时，需要相应的创建并引用这些配置文件。
 配置文件的创建可以参考原有的形式，并在相应字段上进行一些修改。
 
-2. model配置文件
+为了实现模型训练过程的by epoch存储checkpoint和by epoch的validation，在总配置文件中增加字段：
+```python
+# checkpoint cfg
+default_hooks = dict(checkpoint=dict(type='CheckpointHook', interval=1))
+
+# training schedule for 1x
+train_cfg = dict(by_epoch=True, max_epochs=20, val_interval=1)
+```
+
+(2) model配置文件
+
 由于没有对模型配置进行改动，所以延用了原有的`second_hv_secfpn_kitti.py`配置文件。
 
-3. dataset配置文件
+(3) dataset配置文件
+
 基于`kitti-3d-3class.py`配置文件进行修改，得到`waymomine-3d-3class_mine.py`。
 主要修改了以下下字段
 ```python
@@ -106,9 +118,11 @@ ann_file = 'waymo_mine_infos_train.pkl'
 ann_file = 'waymo_mine_infos_val.pkl'
 ann_file = 'waymo_mine_infos_val.pkl'
 ```
+(4) schedule配置文件
 
-4. schedule配置文件
 主要用于配置模型的训练过程，没有进行改动，延用原有的`cyclic-40e.py`和`default_runtime.py`。
+
+---
 
 #### 模型测试过程
 使用以下命令进行模型测试
@@ -210,3 +224,14 @@ python tools/test.py configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-
 ```shell script
 ./tools/dist_train.sh configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py 4
 ```
+
+### 已完成的模型config和checkpoint
+* 语义特征表征
+1. config: `configs/minkunet/minkunet34v2_w32_torchsparse_8xb2-amp-laser-polar-mix-3x_semantickitti.py`
+2. checkpoint: `checkpoints/minkunet34v2_w32_torchsparse_8xb2-amp-laser-polar-mix-3x_semantickitti_20230510_221853-b14a68b3.pth`
+* 实例中心点特征表征
+1. config: `configs/centerpoint/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine.py`
+2. checkpoint: `checkpoints/centerpoint_01voxel_second_secfpn_circlenms_4x8_cyclic_20e_kitti_20230831_164304_mine.pth`
+* 目标检测
+1. config: `configs/second/second_hv_secfpn_8xb6-80e_kitti-3d-3class.py`
+2. checkpoint: `checkpoints/second_hv_secfpn_8xb6-80e_kitti-3d-3class_mine.pth`

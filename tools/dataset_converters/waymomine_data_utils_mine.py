@@ -11,10 +11,7 @@ from skimage import io
 
 
 def get_image_index_str(img_idx, use_prefix_id=False):
-    if use_prefix_id:
-        return '{:07d}'.format(img_idx)
-    else:
-        return '{:06d}'.format(img_idx)
+    return '{:07d}'.format(img_idx)
 
 
 def get_kitti_info_path(idx,
@@ -215,9 +212,9 @@ def get_kitti_image_info(path,
         annotations = None
         if velodyne:
             pc_info['velodyne_path'] = get_velodyne_path(
-                idx, path, training, relative_path, use_prefix_id=True)
+                idx, path, training, relative_path)
         image_info['image_path'] = get_image_path(idx, path, training,
-                                                  relative_path, use_prefix_id=True)
+                                                  relative_path)
         if with_imageshape:
             img_path = image_info['image_path']
             if relative_path:
@@ -225,7 +222,7 @@ def get_kitti_image_info(path,
             image_info['image_shape'] = np.array(
                 io.imread(img_path).shape[:2], dtype=np.int32)
         if label_info:
-            label_path = get_label_path(idx, path, training, relative_path, use_prefix_id=True)
+            label_path = get_label_path(idx, path, training, relative_path)
             if relative_path:
                 label_path = str(root_path / label_path)
             annotations = get_label_anno(label_path)
@@ -233,7 +230,7 @@ def get_kitti_image_info(path,
         info['point_cloud'] = pc_info
         if calib:
             calib_path = get_calib_path(
-                idx, path, training, relative_path=False, use_prefix_id=True)
+                idx, path, training, relative_path=False)
             with open(calib_path, 'r') as f:
                 lines = f.readlines()
             P0 = np.array([float(info) for info in lines[0].split(' ')[1:13]
@@ -244,16 +241,13 @@ def get_kitti_image_info(path,
                            ]).reshape([3, 4])
             P3 = np.array([float(info) for info in lines[3].split(' ')[1:13]
                            ]).reshape([3, 4])
-            P4 = np.array([float(info) for info in lines[4].split(' ')[1:13]
-                           ]).reshape([3, 4])
             if extend_matrix:
                 P0 = _extend_matrix(P0)
                 P1 = _extend_matrix(P1)
                 P2 = _extend_matrix(P2)
                 P3 = _extend_matrix(P3)
-                P4 = _extend_matrix(P4)
             R0_rect = np.array([
-                float(info) for info in lines[5].split(' ')[1:10]
+                float(info) for info in lines[4].split(' ')[1:10]
             ]).reshape([3, 3])
             if extend_matrix:
                 rect_4x4 = np.zeros([4, 4], dtype=R0_rect.dtype)
@@ -262,36 +256,26 @@ def get_kitti_image_info(path,
             else:
                 rect_4x4 = R0_rect
 
-            Tr_velo_to_cam_0 = np.array([
-                float(info) for info in lines[6].split(' ')[1:13]]).reshape([3, 4])
-            Tr_velo_to_cam_1 = np.array([
-                float(info) for info in lines[7].split(' ')[1:13]]).reshape([3, 4])
-            Tr_velo_to_cam_2 = np.array([
-                float(info) for info in lines[8].split(' ')[1:13]]).reshape([3, 4])
-            Tr_velo_to_cam_3 = np.array([
-                float(info) for info in lines[9].split(' ')[1:13]]).reshape([3, 4])
-            Tr_velo_to_cam_4 = np.array([
-                float(info) for info in lines[10].split(' ')[1:13]]).reshape([3, 4])
+            Tr_velo_to_cam = np.array([
+                float(info) for info in lines[5].split(' ')[1:13]
+            ]).reshape([3, 4])
+            Tr_imu_to_velo = np.array([
+                float(info) for info in lines[6].split(' ')[1:13]
+            ]).reshape([3, 4])
             if extend_matrix:
-                Tr_velo_to_cam_0 = _extend_matrix(Tr_velo_to_cam_0)
-                Tr_velo_to_cam_1 = _extend_matrix(Tr_velo_to_cam_1)
-                Tr_velo_to_cam_2 = _extend_matrix(Tr_velo_to_cam_2)
-                Tr_velo_to_cam_3 = _extend_matrix(Tr_velo_to_cam_3)
-                Tr_velo_to_cam_4 = _extend_matrix(Tr_velo_to_cam_4)
+                Tr_velo_to_cam = _extend_matrix(Tr_velo_to_cam)
+                Tr_imu_to_velo = _extend_matrix(Tr_imu_to_velo)
             calib_info['P0'] = P0
             calib_info['P1'] = P1
             calib_info['P2'] = P2
             calib_info['P3'] = P3
             calib_info['R0_rect'] = rect_4x4
-            calib_info['Tr_velo_to_cam_0'] = Tr_velo_to_cam_0
-            calib_info['Tr_velo_to_cam_1'] = Tr_velo_to_cam_1
-            calib_info['Tr_velo_to_cam_2'] = Tr_velo_to_cam_2
-            calib_info['Tr_velo_to_cam_3'] = Tr_velo_to_cam_3
-            calib_info['Tr_velo_to_cam_4'] = Tr_velo_to_cam_4
+            calib_info['Tr_velo_to_cam'] = Tr_velo_to_cam
+            calib_info['Tr_imu_to_velo'] = Tr_imu_to_velo
             info['calib'] = calib_info
 
         if with_plane:
-            plane_path = get_plane_path(idx, path, training, relative_path, use_prefix_id=True)
+            plane_path = get_plane_path(idx, path, training, relative_path)
             if relative_path:
                 plane_path = str(root_path / plane_path)
             lines = mmengine.list_from_file(plane_path)

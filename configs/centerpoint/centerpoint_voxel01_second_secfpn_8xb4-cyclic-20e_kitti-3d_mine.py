@@ -14,4 +14,8 @@ model = dict(
     train_cfg=dict(pts=dict(point_cloud_range=point_cloud_range)),
     test_cfg=dict(pts=dict(pc_range=point_cloud_range[:2])))
 
+# checkpoint cfg
 default_hooks = dict(checkpoint=dict(type='CheckpointHook', interval=1))
+
+# training schedule for 1x
+train_cfg = dict(by_epoch=True, max_epochs=20, val_interval=1)

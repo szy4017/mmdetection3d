@@ -32,8 +32,8 @@ def convert_to_kitti_info_version2(info):
         }
         info['calib'] = {
             'R0_rect': info['calib/R0_rect'],
-            'Tr_velo_to_cam': info['calib/Tr_velo_to_cam_0'],
-            'P2': info['calib/P0'],
+            'Tr_velo_to_cam': info['calib/Tr_velo_to_cam'],
+            'P2': info['calib/P2'],
         }
         info['point_cloud'] = {
             'velodyne_path': info['velodyne_path'],
@@ -86,8 +86,8 @@ class _NumPointsInGTCalculater:
             v_path, dtype=np.float32,
             count=-1).reshape([-1, self.num_features])
         rect = calib['R0_rect']
-        Trv2c = calib['Tr_velo_to_cam_0']
-        P2 = calib['P0']
+        Trv2c = calib['Tr_velo_to_cam']
+        P2 = calib['P2']
         if self.remove_outside:
             points_v = box_np_ops.remove_outside_points(
                 points_v, rect, Trv2c, P2, image_info['image_shape'])
@@ -131,8 +131,8 @@ def _calculate_num_points_in_gt(data_path,
         points_v = np.fromfile(
             v_path, dtype=np.float32, count=-1).reshape([-1, num_features])
         rect = calib['R0_rect']
-        Trv2c = calib['Tr_velo_to_cam_0']
-        P2 = calib['P0']
+        Trv2c = calib['Tr_velo_to_cam']
+        P2 = calib['P2']
         if remove_outside:
             points_v = box_np_ops.remove_outside_points(
                 points_v, rect, Trv2c, P2, image_info['image_shape'])
@@ -337,10 +337,10 @@ def _create_reduced_point_cloud(data_path,
             count=-1).reshape([-1, num_features])
         rect = calib['R0_rect']
         if front_camera_id == 2:
-            P2 = calib['P0']
+            P2 = calib['P2']
         else:
             P2 = calib[f'P{str(front_camera_id)}']
-        Trv2c = calib['Tr_velo_to_cam_0']
+        Trv2c = calib['Tr_velo_to_cam']
         # first remove z < 0 points
         # keep = points_v[:, -1] > 0
         # points_v = points_v[keep]
@@ -437,9 +437,10 @@ def export_2d_annotation(root_path, info_path, mono3d=True):
             dict(
                 file_name=info['image']['image_path'],
                 id=info['image']['image_idx'],
-                Trv2c=info['calib']['Tr_velo_to_cam_0'],
+                Tri2v=info['calib']['Tr_imu_to_velo'],
+                Trv2c=info['calib']['Tr_velo_to_cam'],
                 rect=info['calib']['R0_rect'],
-                cam_intrinsic=info['calib']['P0'],
+                cam_intrinsic=info['calib']['P2'],
                 width=width,
                 height=height))
         for coco_info in coco_infos:
@@ -472,7 +473,7 @@ def get_2d_boxes(info, occluded, mono3d=True):
             `sample_data_token`.
     """
     # Get calibration information
-    P2 = info['calib']['P0']
+    P2 = info['calib']['P2']
 
     repro_recs = []
     # if no annotations in info (test dataset), then return
@@ -507,8 +508,8 @@ def get_2d_boxes(info, occluded, mono3d=True):
         dst = np.array([0.5, 0.5, 0.5])
         src = np.array([0.5, 1.0, 0.5])
         loc = loc + dim * (dst - src)
-        offset = (info['calib']['P0'][0, 3] - info['calib']['P0'][0, 3]) \
-            / info['calib']['P0'][0, 0]
+        offset = (info['calib']['P2'][0, 3] - info['calib']['P0'][0, 3]) \
+            / info['calib']['P2'][0, 0]
         loc_3d = np.copy(loc)
         loc_3d[0, 0] += offset
         gt_bbox_3d = np.concatenate([loc, dim, rot], axis=1).astype(np.float32)
