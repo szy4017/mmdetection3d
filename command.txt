@@ -65,3 +65,9 @@ python tools/analysis_tools/analyze_logs.py plot_curve work_dirs/centerpoint_vox
 python tools/analysis_tools/analyze_logs.py plot_curve work_dirs/centerpoint_voxel01_second_secfpn_8xb4-cyclic-20e_kitti-3d_mine/20230831_164304/vis_data/20230831_164304.json \
     --keys Pedestrian_3D_AP11_easy_strict Car_3D_AP11_easy_strict Cyclist_3D_AP11_easy_strict \
     --legend pedes_AP11_easy car_AP11_easy cyclist_AP11_easy --eval --out centerpoint-kitti-3class-AP11-easy.png
+
+# 可视化训练模型的预测结果 SECOND in KITTI
+python tools/test.py configs/second/second_hv_secfpn_8xb6-80e_kitti-3d-3class.py checkpoints/second_hv_secfpn_8xb6-80e_kitti-3d-3class_mine.pth --cfg-options pklfile_prefix=./work_dirs/results
+python demo/pcd_demo.py demo/data/kitti/000008.bin configs/second/second_hv_secfpn_8xb6-80e_kitti-3d-3class.py checkpoints/second_hv_secfpn_8xb6-80e_kitti-3d-3class_mine.pth --show --snapshot --out-dir ./work_dirs/results
+python tools/test.py configs/second/second_hv_secfpn_8xb6-80e_kitti-3d-3class.py checkpoints/second_hv_secfpn_8xb6-80e_kitti-3d-3class_mine.pth --show --show-dir ./work_dirs/results --task lidar_det
+python demo/pcd_demo_mine.py data/kitti/training/velodyne/007396.bin configs/second/second_hv_secfpn_8xb6-80e_kitti-3d-3class.py checkpoints/second_hv_secfpn_8xb6-80e_kitti-3d-3class_mine.pth

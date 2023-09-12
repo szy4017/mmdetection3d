@@ -37,7 +37,7 @@ def parse_args():
     # args.mask = '../points/000000.label'
     args.label_mapping = np.load('../points/label_mapping.npy')
     args.config = '../configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py'
-    args.checkpoint = '../checkpoints/munkunet_kittiinstance_20230715_1829.pth'
+    args.checkpoint = '../checkpoints/minkunet_kittiinstance_20230715_1829.pth'
     # args.checkpoint = '../checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth'
 
     return args
