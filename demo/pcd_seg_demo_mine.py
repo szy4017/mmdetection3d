@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from mmdet3d.apis import inference_segmentor, init_model
 from mmdet3d.registry import VISUALIZERS
 import numpy as np
+import os
 
 
 def parse_args():
@@ -14,7 +15,7 @@ def parse_args():
     parser.add_argument(
         '--device', default='cuda:0', help='Device used for inference')
     parser.add_argument(
-        '--out-dir', type=str, default='demo', help='dir to save results')
+        '--out-dir', type=str, default='../work_dirs/results', help='dir to save results')
     parser.add_argument(
         '--show',
         action='store_true',
@@ -26,18 +27,18 @@ def parse_args():
     args = parser.parse_args()
 
 
-    # args.pcd = '../points/000000.bin'
-    args.pcd = '../points/point_feature_4.bin'
-    # args.pcd = np.fromfile('../points/000000.bin', dtype=np.float32).reshape(-1, 4)
+    idx = 63
+    args.pcd = '../data/kitti/training/velodyne_reduced/{:06d}.bin'.format(idx)
     with open('../points/000000.label', 'rb') as file:
         data = file.read()
     mask = np.frombuffer(data, dtype=np.uint32)
     mask = mask & 0xFFFF
     args.mask = np.zeros_like(mask)
-    # args.mask = '../points/000000.label'
     args.label_mapping = np.load('../points/label_mapping.npy')
-    args.config = '../configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py'
-    args.checkpoint = '../checkpoints/minkunet_kittiinstance_20230715_1829.pth'
+    args.pcd = '../points/point_target/000043_target_0.bin'
+    args.config = '../configs/minkunet/minkunet34_w32_spconv_8xb2-amp-laser-polar-mix-3x_kittiinstanceseg_mine.py'
+    # args.config = '../configs/minkunet/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti.py'
+    args.checkpoint = '../work_dirs/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_kittiinstanceseg_mine/epoch_10.pth'
     # args.checkpoint = '../checkpoints/minkunet34_w32_spconv_8xb2-laser-polar-mix-3x_semantickitti_20230512_233817-72b200d8.pth'
 
     return args
@@ -47,35 +48,33 @@ def main(args):
     # build the model from a config file and a checkpoint file
     model = init_model(args.config, args.checkpoint, device=args.device)
 
-    # init visualizer
-    visualizer = VISUALIZERS.build(model.cfg.visualizer)
-    visualizer.dataset_meta = model.dataset_meta
-
     # test a single point cloud sample
     result, data = inference_segmentor(model, args.pcd, args.mask, args.label_mapping)
-
-    point = data['inputs']['points'].numpy()
-    gt_mask = args.label_mapping[args.mask]
     pred_mask = result.pred_pts_seg.pts_semantic_mask.cpu().numpy()
-    # save the results
-    print('save result')
-    np.save('../points/point.npy', point)
-    np.save('../points/gt_mask.npy', gt_mask)
-    np.save('../points/pred_mask.npy', pred_mask)
-    print('finished!')
 
-    # show the results
-    # points = data['inputs']['points']
-    # data_input = dict(points=points)
-    # visualizer.add_datasample(
-    #     'result',
-    #     data_input,
-    #     data_sample=result,
-    #     draw_gt=False,
-    #     show=args.show,
-    #     wait_time=-1,
-    #     out_file=args.out_dir,
-    #     vis_task='lidar_seg')
+    # save the results
+    save_tag = '{}_pred_mask.npy'.format(args.pcd.split('/')[-1].split('.')[0])
+    np.save(os.path.join(args.out_dir, save_tag), pred_mask)
+    print('The prediction result is saved in {}'.format(os.path.join(args.out_dir, save_tag)))
+
+
+def main(args):
+    # build the model from a config file and a checkpoint file
+    model = init_model(args.config, args.checkpoint, device=args.device)
+
+    # test a multi point cloud sample
+    # sample_idx_list = [25, 63, 114, 127, 134, 40, 43, 46, 110]
+    sample_idx_list = [0, 1, 2, 3, 4, 5]
+    for idx in sample_idx_list:
+        # pcd = '../data/kitti/training/velodyne_reduced/{:06d}.bin'.format(idx)
+        pcd = '../points/point_target/000046_target_{}.bin'.format(idx)
+        result, data = inference_segmentor(model, pcd, args.mask, args.label_mapping)
+        pred_mask = result.pred_pts_seg.pts_semantic_mask.cpu().numpy()
+
+        # save the results
+        save_tag = '{}_pred_mask.npy'.format(pcd.split('/')[-1].split('.')[0])
+        np.save(os.path.join(args.out_dir, save_tag), pred_mask)
+        print('The prediction result is saved in {}'.format(os.path.join(args.out_dir, save_tag)))
 
 
 if __name__ == '__main__':
